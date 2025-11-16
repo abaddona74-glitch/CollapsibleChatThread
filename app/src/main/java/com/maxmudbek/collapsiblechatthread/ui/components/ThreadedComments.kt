@@ -40,7 +40,8 @@ import com.maxmudbek.collapsiblechatthread.utils.TimeUtils
 fun CommentThread(
     comments: List<Comment>,
     modifier: Modifier = Modifier,
-    contentPadding: PaddingValues = PaddingValues(horizontal = 20.dp, vertical = 8.dp)
+    // Keep per-item horizontal padding at 20.dp; set LazyColumn horizontal padding to 0.dp
+    contentPadding: PaddingValues = PaddingValues(horizontal = 0.dp, vertical = 8.dp)
 ) {
     LazyColumn(
         modifier = modifier.fillMaxSize(),
@@ -57,7 +58,7 @@ fun CommentItem(
     comment: Comment,
     depth: Int,
     modifier: Modifier = Modifier,
-    avatarSize: Dp = 28.dp,
+    avatarSize: Dp = 24.dp,
     avatarGap: Dp = 8.dp,
     headerHeight: Dp = 48.dp,
 ) {
@@ -89,7 +90,7 @@ fun CommentItem(
                 }
                 // Self rail (only if this comment has replies) from avatar center down
                 if (hasReplies) {
-                    val startY = headerHeight.toPx() / 2f // avatar center at half header
+                    val startY = avatarSize.toPx() / 2f // avatar center at half avatar
                     drawLine(
                         color = ConnectorLine,
                         start = Offset(railX, startY),
@@ -101,13 +102,14 @@ fun CommentItem(
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
             // Header area: 48dp high. Inside it: avatar 28x28, 12dp gap, and a 40dp content block
+            // Header row: align contents to the top so avatar's top aligns with header top
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(48.dp),
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.Top
             ) {
-                ProfileIcon(initial = comment.authorInitial, modifier = Modifier.size(28.dp))
+                ProfileIcon(initial = comment.authorInitial, modifier = Modifier.size(avatarSize))
                 Spacer(Modifier.width(12.dp))
 
                 // Inner content block of height 40dp containing name row and (below) channel
@@ -199,9 +201,7 @@ fun CommentItem(
                         Text(
                             text = comment.content,
                             color = Color(0xFFAFB2B9),
-                            style = TextStyle(fontSize = 15.sp, lineHeight = 20.sp),
-                            maxLines = 4,
-                            overflow = TextOverflow.Ellipsis
+                            style = TextStyle(fontSize = 15.sp, lineHeight = 20.sp)
                         )
                     }
                 }
