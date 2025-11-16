@@ -138,6 +138,9 @@ fun CommentItem(
                             overflow = TextOverflow.Ellipsis,
                             style = TextStyle(fontWeight = FontWeight.SemiBold, fontSize = 15.sp, lineHeight = 20.sp)
                         )
+                        // (Tags were previously rendered inline here; moved below
+                        // the name row so badges appear under the author similar to
+                        // the channel badge.)
                         Spacer(Modifier.width(6.dp))
                         Box(
                             modifier = Modifier
@@ -151,6 +154,28 @@ fun CommentItem(
                             color = Color(0xFFAFB2B9),
                             style = TextStyle(fontSize = 12.sp, lineHeight = 16.sp)
                         )
+                    }
+
+                    // Render any author tags below the name row (like the channel badge).
+                    if (comment.tags.isNotEmpty()) {
+                        comment.tags.forEach { tag ->
+                            // Use special styling only for the Top 1% Commenter tag.
+                            val isTop = tag.equals("Top 1% Commenter", ignoreCase = true)
+                            Spacer(Modifier.height(4.dp))
+                            Box(modifier = Modifier.padding(top = 2.dp)) {
+                                Text(
+                                    text = tag,
+                                    color = if (isTop) Color(0xFFFFC368) else OnSurfaceVar,
+                                    modifier = Modifier
+                                        .background(
+                                            if (isTop) Color(0x1FFFC368) else Surface50,
+                                            androidx.compose.foundation.shape.RoundedCornerShape(6.dp)
+                                        )
+                                        .padding(vertical = 3.dp, horizontal = 6.dp),
+                                    style = TextStyle(fontWeight = FontWeight.Medium, fontSize = 10.sp, lineHeight = 12.sp)
+                                )
+                            }
+                        }
                     }
 
                     // Channel (e.g. /ProductReflection) sits below the name row inside the 40dp block

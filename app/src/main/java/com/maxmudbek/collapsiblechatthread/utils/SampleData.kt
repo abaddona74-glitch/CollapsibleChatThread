@@ -35,6 +35,7 @@ Here's what I learned about feature creep, marketing missteps, and chasing perfe
                         authorName = "ByteBuddy88",
                         authorInitial = "B",
                         timestamp = now - (oneDay - 2 * oneHour),
+                        tags = listOf("Top 1% Commenter"),
                         content = "Really insightful — I ran into similar issues with feature creep. Have you considered an MVP with A/B tests?"
                     ),
                     Comment(
