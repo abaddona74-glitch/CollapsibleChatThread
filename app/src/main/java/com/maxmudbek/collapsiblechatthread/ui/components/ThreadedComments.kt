@@ -64,6 +64,8 @@ fun CommentItem(
     val indent = (depth * 12).dp
     val hasReplies = comment.replies.isNotEmpty()
     var expanded by rememberSaveable(comment.id) { mutableStateOf(false) }
+    // Track the Y position of the actions row so rails can be capped at that point
+    val actionsTopPx = remember { mutableStateOf<Float?>(null) }
 
     // Each comment block: horizontal 20dp + depth indent, vertical 33dp
     Box(
@@ -72,7 +74,9 @@ fun CommentItem(
             .padding(start = indent + 20.dp, end = 20.dp, top = 33.dp, bottom = 33.dp)
             .drawBehind {
                 val railX = avatarSize.toPx() / 2f
-                val endY = size.height
+                // Cap rails at the actions row top (if measured) so they don't extend
+                // past the elbow/connector area.
+                val endY = actionsTopPx.value ?: size.height
 
                 // Rail for replies (this comment as a child) — continuous from top
                 if (depth > 0) {
@@ -233,58 +237,94 @@ fun CommentItem(
                     .fillMaxWidth()
                     .padding(top = 8.dp)
                     .height(40.dp)
-                    .animateContentSize(),
+                    .animateContentSize()
+                    .onGloballyPositioned { coords ->
+                        // positionInParent() gives px offset relative to the Column parent.
+                        actionsTopPx.value = coords.positionInParent().y
+                    },
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Left area: reserve avatar width so connector aligns with avatar center
+                // Left area: reserve avatar width so connector aligns with avatar center.
+                // When expanded, show the minus icon inside this box centered on the rail.
+                val verticalLenDp = 20.dp
+                val horizontalLenDp = 14.dp
                 Box(
                     modifier = Modifier
                         .width(28.dp)
                         .fillMaxHeight()
                         .drawBehind {
                             val cx = size.width / 2f
-                            val verticalLen = 20.dp.toPx()
-                            val horizontalLen = 14.dp.toPx()
-                            // Draw vertical segment (from top of actions box down verticalLen)
-                            drawLine(
-                                color = Color(0x4DFFFFFF),
-                                start = Offset(cx, 0f),
-                                end = Offset(cx, verticalLen),
-                                strokeWidth = 1.dp.toPx()
-                            )
-                            // Draw horizontal segment (to the right) at y = verticalLen
-                            drawLine(
-                                color = Color(0x4DFFFFFF),
-                                start = Offset(cx, verticalLen),
-                                end = Offset(cx + horizontalLen, verticalLen),
-                                strokeWidth = 1.dp.toPx()
-                            )
-                        }
-                )
+                            val verticalLen = verticalLenDp.toPx()
+                            val horizontalLen = horizontalLenDp.toPx()
+                            // Draw L-shaped connector only when collapsed; when expanded we
+                            // show the minus icon in this box instead and hide the L connector.
+                            if (!expanded) {
+                                // Mask a small horizontal strip at the elbow so any stray
+                                // lines from parent drawing do not protrude past the elbow.
+                                val maskHalf = 1.dp.toPx()
+                                drawRect(
+                                    color = bg,
+                                    topLeft = Offset(0f, verticalLen - maskHalf),
+                                    size = androidx.compose.ui.geometry.Size(size.width, maskHalf * 2f)
+                                )
+
+                                // Draw vertical segment (from top of actions box down verticalLen)
+                                drawLine(
+                                    color = Color(0x4DFFFFFF),
+                                    start = Offset(cx, 0f),
+                                    end = Offset(cx, verticalLen),
+                                    strokeWidth = 1.dp.toPx()
+                                )
+                                // Draw horizontal segment (to the right) at y = verticalLen
+                                drawLine(
+                                    color = Color(0x4DFFFFFF),
+                                    start = Offset(cx, verticalLen),
+                                    end = Offset(cx + horizontalLen, verticalLen),
+                                    strokeWidth = 1.dp.toPx()
+                                )
+                            }
+                        },
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (hasReplies && expanded) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.icon_minus_circle),
+                            contentDescription = "Hide replies",
+                            tint = Color.White,
+                            modifier = Modifier
+                                .size(20.dp)
+                                .clickable { expanded = !expanded }
+                        )
+                    }
+                }
 
                 Spacer(modifier = Modifier.width(8.dp))
 
-                // Toggle group: icon + text, 8dp spacing between icon and text
+                // Toggle group: when collapsed show icon+label; when expanded the minus icon
+                // is rendered inside the left connector box, so we don't render the label here.
                 if (hasReplies) {
-                    val label = if (expanded) "Hide replies" else {
+                    val label = run {
                         val c = comment.getTotalReplyCount()
                         if (c == 1) "Show 1 reply" else "Show $c replies"
                     }
 
+                    // Clicking anywhere on this Row toggles expand/collapse.
                     Row(
                         modifier = Modifier
                             .clickable { expanded = !expanded }
                             .wrapContentHeight(Alignment.CenterVertically),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Icon(
-                            painter = painterResource(id = if (expanded) R.drawable.icon_minus_circle else R.drawable.icon_plus_circle),
-                            contentDescription = label,
-                            tint = Color.White,
-                            modifier = Modifier.size(16.dp)
-                        )
-                        Spacer(Modifier.width(8.dp))
-                        Text(text = label, color = Color.White)
+                        if (!expanded) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.icon_plus_circle),
+                                contentDescription = label,
+                                tint = Color.White,
+                                modifier = Modifier.size(16.dp)
+                            )
+                            Spacer(Modifier.width(8.dp))
+                            Text(text = label, color = Color.White)
+                        }
                     }
 
                     Spacer(modifier = Modifier.width(8.dp))
