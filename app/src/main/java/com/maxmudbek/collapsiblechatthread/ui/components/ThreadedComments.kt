@@ -6,6 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
@@ -47,8 +48,8 @@ fun CommentThread(
         modifier = modifier.fillMaxSize(),
         contentPadding = contentPadding
     ) {
-        items(items = comments, key = { it.id }) { c ->
-            CommentItem(comment = c, depth = 0)
+        itemsIndexed(items = comments, key = { _, item -> item.id }) { index, c ->
+            CommentItem(comment = c, depth = 0, isFirst = index == 0)
         }
     }
 }
@@ -57,6 +58,7 @@ fun CommentThread(
 fun CommentItem(
     comment: Comment,
     depth: Int,
+    isFirst: Boolean = false,
     modifier: Modifier = Modifier,
     avatarSize: Dp = 24.dp,
     avatarGap: Dp = 8.dp,
@@ -72,12 +74,26 @@ fun CommentItem(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .padding(start = indent + 20.dp, end = 20.dp, top = 33.dp, bottom = 33.dp)
+            // Apply top padding only for the very first root comment; keep
+            // bottom padding for spacing between items.
+            .padding(
+                start = indent + 20.dp,
+                end = 20.dp,
+                top = if (depth == 0 && isFirst) 33.dp else 0.dp,
+                // Remove bottom padding from each item to avoid double-spacing
+                // between consecutive comments. Vertical spacing is controlled
+                // by the top padding on the first item and list content padding.
+                bottom = 0.dp
+            )
             .drawBehind {
                 val railX = avatarSize.toPx() / 2f
                 // Cap rails at the actions row top (if measured) so they don't extend
                 // past the elbow/connector area.
-                val endY = actionsTopPx.value ?: size.height
+                // Slightly extend the rail into the actions area to ensure the
+                // L-shaped connector drawn inside the actions box visually
+                // meets the parent rail (prevents a small gap on some devices).
+                // Use a few pixels to tolerate rounding differences across densities.
+                val endY = (actionsTopPx.value ?: size.height) + 3.dp.toPx()
 
                 // Rail for replies (this comment as a child) — continuous from top
                 if (depth > 0) {
@@ -155,7 +171,8 @@ fun CommentItem(
             }
 
             // Part 2: split area (left narrow rail + right text column) — render when we have both title and content
-            if (depth == 0 && comment.title != null && comment.content.isNotEmpty()) {
+            // Render for replies as well so child comments can look like root items (just indented).
+            if (comment.title != null && comment.content.isNotEmpty()) {
                 // Remember headline top Y in parent coordinates (px) so the rail can start aligned
                 val headlineTopPx = remember { mutableStateOf<Float?>(null) }
                 // Keep no extra top padding here so the overall comment vertical padding stays
@@ -206,15 +223,13 @@ fun CommentItem(
                     }
                 }
             } else {
-                // Fallback: original title + content rendering
-                if (depth == 0) {
-                    comment.title?.let { t ->
-                        Text(
-                            text = t,
-                            modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
-                            style = TextStyle(fontWeight = FontWeight.SemiBold, fontSize = 18.sp, lineHeight = 24.sp)
-                        )
-                    }
+                // Fallback: original title + content rendering (render title for replies too)
+                comment.title?.let { t ->
+                    Text(
+                        text = t,
+                        modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
+                        style = TextStyle(fontWeight = FontWeight.SemiBold, fontSize = 18.sp, lineHeight = 24.sp)
+                    )
                 }
 
                 // Content
@@ -256,18 +271,21 @@ fun CommentItem(
                             val cx = size.width / 2f
                             val verticalLen = verticalLenDp.toPx()
                             val horizontalLen = horizontalLenDp.toPx()
-                            // Draw L-shaped connector only when collapsed; when expanded we
-                            // show the minus icon in this box instead and hide the L connector.
-                            if (!expanded) {
-                                // Mask a small horizontal strip at the elbow so any stray
-                                // lines from parent drawing do not protrude past the elbow.
-                                val maskHalf = 1.dp.toPx()
-                                drawRect(
-                                    color = bg,
-                                    topLeft = Offset(0f, verticalLen - maskHalf),
-                                    size = androidx.compose.ui.geometry.Size(size.width, maskHalf * 2f)
-                                )
+                            // Draw L-shaped connector only when this comment has replies
+                            // and is currently collapsed. For comments without replies
+                            // we should not draw the connector box at all.
+                            // Always mask the small horizontal strip at the elbow area so
+                            // any stray parent lines don't create a visible tick for
+                            // leaf comments. Drawing the mask is cheap and prevents
+                            // visual artifacts even when we don't draw the L connector.
+                            val maskHalf = 1.dp.toPx()
+                            drawRect(
+                                color = bg,
+                                topLeft = Offset(0f, verticalLen - maskHalf),
+                                size = androidx.compose.ui.geometry.Size(size.width, maskHalf * 2f)
+                            )
 
+                            if (hasReplies && !expanded) {
                                 // Draw vertical segment (from top of actions box down verticalLen)
                                 drawLine(
                                     color = Color(0x4DFFFFFF),
