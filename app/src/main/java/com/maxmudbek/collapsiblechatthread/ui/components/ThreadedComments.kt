@@ -41,7 +41,7 @@ import com.maxmudbek.collapsiblechatthread.utils.TimeUtils
 fun CommentThread(
     comments: List<Comment>,
     modifier: Modifier = Modifier,
-    // Keep per-item horizontal padding at 20.dp; set LazyColumn horizontal padding to 0.dp
+    
     contentPadding: PaddingValues = PaddingValues(horizontal = 0.dp, vertical = 8.dp)
 ) {
     LazyColumn(
@@ -67,38 +67,38 @@ fun CommentItem(
     val indent = (depth * 12).dp
     val hasReplies = comment.replies.isNotEmpty()
     var expanded by rememberSaveable(comment.id) { mutableStateOf(false) }
-    // Track the Y position of the actions row so rails can be capped at that point
+    
     val actionsTopPx = remember { mutableStateOf<Float?>(null) }
 
-    // Each comment block: horizontal 20dp + depth indent, vertical 33dp
+    
     Box(
         modifier = modifier
             .fillMaxWidth()
-            // Apply top padding only for the very first root comment; keep
-            // bottom padding for spacing between items.
+            
+            
             .padding(
                 start = indent + 20.dp,
                 end = 20.dp,
                 top = if (depth == 0 && isFirst) 33.dp else 0.dp,
-                // Remove bottom padding from each item to avoid double-spacing
-                // between consecutive comments. Vertical spacing is controlled
-                // by the top padding on the first item and list content padding.
+                
+                
+                
                 bottom = 0.dp
             )
             .drawBehind {
                 val railX = avatarSize.toPx() / 2f
-                // Cap rails at the actions row top (if measured) so they don't extend
-                // past the elbow/connector area.
-                // Slightly extend the rail into the actions area to ensure the
-                // L-shaped connector drawn inside the actions box visually
-                // meets the parent rail (prevents a small gap on some devices).
-                // Use a few pixels to tolerate rounding differences across densities.
+                
+                
+                
+                
+                
+                
                 val endY = (actionsTopPx.value ?: size.height) + 3.dp.toPx()
 
-                // Rail for replies (this comment as a child) — continuous from top
-                // Only draw the child rail when this comment itself has replies.
-                // This removes the vertical line for leaf comments at the bottom
-                // of the thread, per design request.
+                
+                
+                
+                
                 if (depth > 0 && hasReplies) {
                     drawLine(
                         color = ConnectorLine,
@@ -107,9 +107,9 @@ fun CommentItem(
                         strokeWidth = 1.dp.toPx()
                     )
                 }
-                // Self rail (only if this comment has replies) from avatar center down
+                
                 if (hasReplies) {
-                    val startY = avatarSize.toPx() / 2f // avatar center at half avatar
+                    val startY = avatarSize.toPx() / 2f 
                     drawLine(
                         color = ConnectorLine,
                         start = Offset(railX, startY),
@@ -120,8 +120,8 @@ fun CommentItem(
             }
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
-            // Header area: 48dp high. Inside it: avatar 28x28, 12dp gap, and a 40dp content block
-            // Header row: align contents to the top so avatar's top aligns with header top
+            
+            
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -131,9 +131,9 @@ fun CommentItem(
                 ProfileIcon(initial = comment.authorInitial, modifier = Modifier.size(avatarSize))
                 Spacer(Modifier.width(12.dp))
 
-                // Inner content block of height 40dp containing name row and (below) channel
+                
                 Column(modifier = Modifier.height(40.dp).fillMaxWidth()) {
-                    // Name row: name (15sp semibold, lineHeight 20), small ellipse, and timestamp (12sp, AFB2B9)
+                    
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
                             text = comment.authorName,
@@ -141,9 +141,9 @@ fun CommentItem(
                             overflow = TextOverflow.Ellipsis,
                             style = TextStyle(fontWeight = FontWeight.SemiBold, fontSize = 15.sp, lineHeight = 20.sp)
                         )
-                        // (Tags were previously rendered inline here; moved below
-                        // the name row so badges appear under the author similar to
-                        // the channel badge.)
+                        
+                        
+                        
                         Spacer(Modifier.width(6.dp))
                         Box(
                             modifier = Modifier
@@ -159,10 +159,10 @@ fun CommentItem(
                         )
                     }
 
-                    // Render any author tags below the name row (like the channel badge).
+                    
                     if (comment.tags.isNotEmpty()) {
                         comment.tags.forEach { tag ->
-                            // Use special styling only for the Top 1% Commenter tag.
+                            
                             val isTop = tag.equals("Top 1% Commenter", ignoreCase = true)
                             Spacer(Modifier.height(4.dp))
                             Box(modifier = Modifier.padding(top = 2.dp)) {
@@ -181,7 +181,7 @@ fun CommentItem(
                         }
                     }
 
-                    // Channel (e.g. /ProductReflection) sits below the name row inside the 40dp block
+                    
                     if (depth == 0) {
                         comment.channel?.let { ch ->
                             Text(
@@ -198,23 +198,23 @@ fun CommentItem(
                 }
             }
 
-            // Part 2: split area (left narrow rail + right text column) — render when we have both title and content
-            // Render for replies as well so child comments can look like root items (just indented).
+            
+            
             if (comment.title != null && comment.content.isNotEmpty()) {
-                // Remember headline top Y in parent coordinates (px) so the rail can start aligned
+                
                 val headlineTopPx = remember { mutableStateOf<Float?>(null) }
-                // Keep no extra top padding here so the overall comment vertical padding stays
-                // at the outer block's 33.dp as specified.
+                
+                
                 Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
-                    // Left narrow column: 28dp wide with centered vertical rail (30% white)
+                    
                     Box(
                         modifier = Modifier
                             .width(28.dp)
                             .wrapContentHeight(Alignment.Top)
                             .drawBehind {
                                 val cx = size.width / 2f
-                                // Start the rail at the headline top if available, otherwise fall back
-                                // to a safe header height to avoid overlapping the avatar.
+                                
+                                
                                 val startY = headlineTopPx.value ?: headerHeight.toPx()
                                 val endY = size.height
                                 drawLine(
@@ -228,12 +228,12 @@ fun CommentItem(
 
                     Spacer(modifier = Modifier.width(8.dp))
 
-                    // Right column: headline + paragraph
+                    
                     Column(modifier = Modifier.fillMaxWidth()) {
                         Text(
                             text = comment.title ?: "",
                             modifier = Modifier.onGloballyPositioned { coords ->
-                                // positionInParent() gives px offset relative to the Row parent.
+                                
                                 headlineTopPx.value = coords.positionInParent().y
                             },
                             style = TextStyle(fontWeight = FontWeight.Medium, fontSize = 20.sp, lineHeight = 26.sp),
@@ -251,28 +251,57 @@ fun CommentItem(
                     }
                 }
             } else {
-                // Fallback: original title + content rendering (render title for replies too)
-                comment.title?.let { t ->
+                
+                
+                
+                if (depth > 0) {
+                    Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
+                        
+                        Box(modifier = Modifier.width(28.dp))
+                        Spacer(modifier = Modifier.width(8.dp))
+
+                        Column(modifier = Modifier.fillMaxWidth()) {
+                            comment.title?.let { t ->
+                                Text(
+                                    text = t,
+                                    modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
+                                    style = TextStyle(fontWeight = FontWeight.SemiBold, fontSize = 18.sp, lineHeight = 24.sp)
+                                )
+                            }
+
+                            
+                            Text(
+                                text = comment.content,
+                                color = OnSurfaceVar,
+                                style = MaterialTheme.typography.bodyLarge,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
+                    }
+                } else {
+                    
+                    comment.title?.let { t ->
+                        Text(
+                            text = t,
+                            modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
+                            style = TextStyle(fontWeight = FontWeight.SemiBold, fontSize = 18.sp, lineHeight = 24.sp)
+                        )
+                    }
+
+                    
                     Text(
-                        text = t,
-                        modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
-                        style = TextStyle(fontWeight = FontWeight.SemiBold, fontSize = 18.sp, lineHeight = 24.sp)
+                        text = comment.content,
+                        color = OnSurfaceVar,
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier.fillMaxWidth()
                     )
                 }
-
-                // Content
-                Text(
-                    text = comment.content,
-                    color = OnSurfaceVar,
-                    style = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier.fillMaxWidth()
-                )
             }
 
-            // Separator removed: the full-width divider created an extra horizontal line
-            // that conflicted visually with the connector rails. Removed to match design.
+            
+            
 
-            // Actions row (Part-3): fixed height 40dp. Left L-shaped connector aligned with avatar.
+            
             val bg = MaterialTheme.colorScheme.background
             val iconTint = if (bg.luminance() < 0.5f) Color.White else Color.Black
             Row(
@@ -282,13 +311,13 @@ fun CommentItem(
                     .height(40.dp)
                     .animateContentSize()
                     .onGloballyPositioned { coords ->
-                        // positionInParent() gives px offset relative to the Column parent.
+                        
                         actionsTopPx.value = coords.positionInParent().y
                     },
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Left area: reserve avatar width so connector aligns with avatar center.
-                // When expanded, show the minus icon inside this box centered on the rail.
+                
+                
                 val verticalLenDp = 20.dp
                 val horizontalLenDp = 14.dp
                 Box(
@@ -299,13 +328,13 @@ fun CommentItem(
                             val cx = size.width / 2f
                             val verticalLen = verticalLenDp.toPx()
                             val horizontalLen = horizontalLenDp.toPx()
-                            // Draw L-shaped connector only when this comment has replies
-                            // and is currently collapsed. For comments without replies
-                            // we should not draw the connector box at all.
-                            // Always mask the small horizontal strip at the elbow area so
-                            // any stray parent lines don't create a visible tick for
-                            // leaf comments. Drawing the mask is cheap and prevents
-                            // visual artifacts even when we don't draw the L connector.
+                            
+                            
+                            
+                            
+                            
+                            
+                            
                             val maskHalf = 1.dp.toPx()
                             drawRect(
                                 color = bg,
@@ -314,14 +343,14 @@ fun CommentItem(
                             )
 
                             if (hasReplies && !expanded) {
-                                // Draw vertical segment (from top of actions box down verticalLen)
+                                
                                 drawLine(
                                     color = Color(0x4DFFFFFF),
                                     start = Offset(cx, 0f),
                                     end = Offset(cx, verticalLen),
                                     strokeWidth = 1.dp.toPx()
                                 )
-                                // Draw horizontal segment (to the right) at y = verticalLen
+                                
                                 drawLine(
                                     color = Color(0x4DFFFFFF),
                                     start = Offset(cx, verticalLen),
@@ -346,15 +375,15 @@ fun CommentItem(
 
                 Spacer(modifier = Modifier.width(8.dp))
 
-                // Toggle group: when collapsed show icon+label; when expanded the minus icon
-                // is rendered inside the left connector box, so we don't render the label here.
+                
+                
                 if (hasReplies) {
                     val label = run {
                         val c = comment.getTotalReplyCount()
                         if (c == 1) "Show 1 reply" else "Show $c replies"
                     }
 
-                    // Clicking anywhere on this Row toggles expand/collapse.
+                    
                     Row(
                         modifier = Modifier
                             .clickable { expanded = !expanded }
@@ -376,7 +405,7 @@ fun CommentItem(
                     Spacer(modifier = Modifier.width(8.dp))
                 }
 
-                // Reply group: icon + text with 8dp spacing
+                
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
                         painter = painterResource(id = R.drawable.icon_reply),
@@ -389,7 +418,7 @@ fun CommentItem(
                 }
             }
 
-            // Children (conditional composition, no reserved space when collapsed)
+            
             if (expanded && hasReplies) {
                 Column(modifier = Modifier.animateContentSize()) {
                     comment.replies.forEach { child ->
@@ -403,5 +432,5 @@ fun CommentItem(
 
 @Composable
 fun ThreadLine(depth: Int, isLast: Boolean) {
-    // Optional stub if needed later; current implementation draws lines inside CommentItem via drawBehind
+    
 }

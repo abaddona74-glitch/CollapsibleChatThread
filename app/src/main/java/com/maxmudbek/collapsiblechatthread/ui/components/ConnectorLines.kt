@@ -28,12 +28,7 @@ import androidx.compose.ui.res.painterResource
 import com.maxmudbek.collapsiblechatthread.ui.theme.ConnectorLine
 import com.maxmudbek.collapsiblechatthread.R
 
-/**
- * Vertical line shown on the left of nested comments
- * Indicates thread nesting level and hierarchy
- * 
- * @param modifier Optional modifier for customization
- */
+
 @Composable
 fun VerticalConnectorLine(
     modifier: Modifier = Modifier
@@ -52,12 +47,7 @@ fun VerticalConnectorLine(
     }
 }
 
-/**
- * Horizontal line connecting vertical line to comment
- * Shows connection between parent and child comment
- * 
- * @param modifier Optional modifier for customization
- */
+
 @Composable
 fun HorizontalConnectorLine(
     modifier: Modifier = Modifier,
@@ -79,19 +69,14 @@ fun HorizontalConnectorLine(
     }
 }
 
-/**
- * Full-height vertical line for thread gutter
- * Centered at x=1dp inside a wider Box if needed
- */
+
 @Composable
 fun ThreadVerticalLine(modifier: Modifier = Modifier) {
-    // Thread gutter intentionally disabled — vertical connector removed per design request
+    
     Box(modifier = modifier) {}
 }
 
-/**
- * Small circular toggle displayed over the vertical connector line
- */
+
 @Composable
 fun ToggleBubble(expanded: Boolean, onToggle: () -> Unit, modifier: Modifier = Modifier) {
     val bg = MaterialTheme.colorScheme.background

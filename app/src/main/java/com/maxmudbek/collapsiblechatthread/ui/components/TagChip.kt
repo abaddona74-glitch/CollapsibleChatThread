@@ -13,13 +13,7 @@ import com.maxmudbek.collapsiblechatthread.ui.theme.TagBackground
 import com.maxmudbek.collapsiblechatthread.ui.theme.TagBorder
 import com.maxmudbek.collapsiblechatthread.ui.theme.TextSecondary
 
-/**
- * Small badge/tag component for user achievements
- * Examples: "Top 1% Commenter", "Top 1% Poster"
- * 
- * @param text Tag text to display
- * @param modifier Optional modifier for customization
- */
+
 @Composable
 fun TagChip(
     text: String,

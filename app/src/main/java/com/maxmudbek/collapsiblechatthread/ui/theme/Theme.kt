@@ -11,10 +11,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
-/**
- * Dark color scheme matching PDF requirements
- * Always uses dark theme as specified
- */
+
 private val DarkColorScheme = darkColorScheme(
     primary = AccentBlue,
     secondary = AccentPurple,
@@ -32,7 +29,7 @@ private val DarkColorScheme = darkColorScheme(
 
 @Composable
 fun CollapsibleChatThreadTheme(
-    darkTheme: Boolean = true, // Always dark as per PDF requirement
+    darkTheme: Boolean = true, 
     content: @Composable () -> Unit
 ) {
     val colorScheme = DarkColorScheme

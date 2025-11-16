@@ -17,21 +17,15 @@ import androidx.compose.foundation.shape.CircleShape
 import com.maxmudbek.collapsiblechatthread.ui.theme.ProfileColors
 import com.maxmudbek.collapsiblechatthread.ui.theme.Primary
 
-/**
- * Circular profile icon with user's initial
- * Uses color from ProfileColors list based on initial character
- * 
- * @param initial First letter of user's name
- * @param modifier Optional modifier for customization
- */
+
 @Composable
 fun ProfileIcon(
     initial: String,
     modifier: Modifier = Modifier
 ) {
-    // Get color based on initial character (consistent color per user)
+    
     val colorIndex = initial.firstOrNull()?.uppercaseChar()?.code?.rem(ProfileColors.size) ?: 0
-    // Use specific Primary color for the 'D' initial as requested, otherwise pick from palette
+    
     val backgroundColor = if (initial.equals("D", ignoreCase = true)) Primary else ProfileColors[colorIndex]
 
     Box(

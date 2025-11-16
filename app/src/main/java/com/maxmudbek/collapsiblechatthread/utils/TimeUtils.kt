@@ -1,17 +1,9 @@
 package com.maxmudbek.collapsiblechatthread.utils
 
-/**
- * Utility functions for time formatting
- */
+
 object TimeUtils {
     
-    /**
-     * Converts a timestamp to relative time format
-     * Examples: "5 minutes ago", "2 hours ago", "1 day ago"
-     * 
-     * @param timestamp Unix timestamp in milliseconds
-     * @return Formatted relative time string
-     */
+    
     fun getRelativeTime(timestamp: Long): String {
         val now = System.currentTimeMillis()
         val diff = now - timestamp

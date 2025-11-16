@@ -2,15 +2,10 @@ package com.maxmudbek.collapsiblechatthread.utils
 
 import com.maxmudbek.collapsiblechatthread.model.Comment
 
-/**
- * Provides sample data for testing the collapsible thread UI
- */
+
 object SampleData {
     
-    /**
-     * Generates a list of sample comments with nested replies
-     * Demonstrates multiple levels of nesting
-     */
+    
     fun getSampleComments(): List<Comment> {
         val now = System.currentTimeMillis()
         val oneMinute = 60 * 1000L
@@ -18,7 +13,7 @@ object SampleData {
         val oneDay = 24 * oneHour
         
         return listOf(
-            // First root comment with deep nesting
+            
             Comment(
                 id = "1",
                 authorName = "DreamSyntaxHiker",
