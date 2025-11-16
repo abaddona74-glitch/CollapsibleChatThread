@@ -146,24 +146,69 @@ fun CommentItem(
                 }
             }
 
-            // Title below the header/inner block
-            if (depth == 0) {
-                comment.title?.let { t ->
-                    Text(
-                        text = t,
-                        modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
-                        style = TextStyle(fontWeight = FontWeight.SemiBold, fontSize = 18.sp, lineHeight = 24.sp)
+            // Part 2: split area (left narrow rail + right text column) — render when we have both title and content
+            if (depth == 0 && comment.title != null && comment.content.isNotEmpty()) {
+                Row(modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp), verticalAlignment = Alignment.Top) {
+                    // Left narrow column: 28dp wide with centered vertical rail (30% white)
+                    Box(
+                        modifier = Modifier
+                            .width(28.dp)
+                            .fillMaxHeight()
+                            .drawBehind {
+                                val cx = size.width / 2f
+                                drawLine(
+                                    color = Color(0x4DFFFFFF),
+                                    start = Offset(cx, 0f),
+                                    end = Offset(cx, size.height),
+                                    strokeWidth = 1.dp.toPx()
+                                )
+                            }
                     )
-                }
-            }
 
-            // Content
-            Text(
-                text = comment.content,
-                color = OnSurfaceVar,
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.fillMaxWidth()
-            )
+                    Spacer(modifier = Modifier.width(8.dp))
+
+                    // Right column: headline + paragraph
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        Text(
+                            text = comment.title ?: "",
+                            style = TextStyle(fontWeight = FontWeight.Medium, fontSize = 20.sp, lineHeight = 26.sp),
+                            maxLines = 3,
+                            overflow = TextOverflow.Ellipsis
+                        )
+
+                        Spacer(modifier = Modifier.height(6.dp))
+
+                        Text(
+                            text = comment.content,
+                            color = Color(0xFFAFB2B9),
+                            style = TextStyle(fontSize = 15.sp, lineHeight = 20.sp),
+                            maxLines = 4,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+                }
+            } else {
+                // Fallback: original title + content rendering
+                if (depth == 0) {
+                    comment.title?.let { t ->
+                        Text(
+                            text = t,
+                            modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
+                            style = TextStyle(fontWeight = FontWeight.SemiBold, fontSize = 18.sp, lineHeight = 24.sp)
+                        )
+                    }
+                }
+
+                // Content
+                Text(
+                    text = comment.content,
+                    color = OnSurfaceVar,
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
 
             // Separator for clearer hierarchy
             Divider(color = ConnectorLine, thickness = 1.dp, modifier = Modifier.padding(vertical = 8.dp))
