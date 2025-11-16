@@ -168,7 +168,7 @@ fun CommentItem(
             // Separator for clearer hierarchy
             Divider(color = ConnectorLine, thickness = 1.dp, modifier = Modifier.padding(vertical = 8.dp))
 
-            // Actions row — positioned at left edge so toggle icon aligns with vertical rail
+            // Actions row — position the toggle icon so it aligns with the avatar/rail center
             val bg = MaterialTheme.colorScheme.background
             val iconTint = if (bg.luminance() < 0.5f) Color.White else Color.Black
             Row(
@@ -183,7 +183,12 @@ fun CommentItem(
                         val c = comment.getTotalReplyCount()
                         if (c == 1) "Show 1 reply" else "Show $c replies"
                     }
-                    Box(modifier = Modifier.offset(x = (-14).dp)) {
+                    // Calculate offset so the toggle icon is centered on the avatar/rail.
+                    // Avatar and icon sizes are in Dp so we can compute the offset in Dp directly.
+                    val iconSize = 16.dp
+                    val toggleOffset = (avatarSize - iconSize) / 2f
+
+                    Box(modifier = Modifier.offset(x = toggleOffset)) {
                         Row(
                             modifier = Modifier.clickable { expanded = !expanded },
                             verticalAlignment = Alignment.CenterVertically
