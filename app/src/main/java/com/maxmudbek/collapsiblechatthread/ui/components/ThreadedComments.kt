@@ -222,8 +222,8 @@ fun CommentItem(
                 )
             }
 
-            // Separator for clearer hierarchy
-            Divider(color = ConnectorLine, thickness = 1.dp, modifier = Modifier.padding(vertical = 8.dp))
+            // Separator removed: the full-width divider created an extra horizontal line
+            // that conflicted visually with the connector rails. Removed to match design.
 
             // Actions row (Part-3): fixed height 40dp. Left L-shaped connector aligned with avatar.
             val bg = MaterialTheme.colorScheme.background
