@@ -392,7 +392,7 @@ fun CommentItem(
                 
                 if (hasReplies) {
                     val label = run {
-                        val c = comment.getTotalReplyCount()
+                        val c = comment.getDirectReplyCount()
                         if (c == 1) "Show 1 reply" else "Show $c replies"
                     }
 

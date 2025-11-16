@@ -31,7 +31,37 @@ Here's what I learned about feature creep, marketing missteps, and chasing perfe
                         authorInitial = "B",
                         timestamp = now - oneDay,
                         tags = listOf("Top 1% Commenter"),
-                        content = "Can relate. I thought adding 3 extra modes would help my music app. Users just wanted a clean player."
+                            content = "Can relate. I thought adding 3 extra modes would help my music app. Users just wanted a clean player.",
+                            replies = listOf(
+                                Comment(
+                                    id = "1-1-1",
+                                    authorName = "CodeNamedQuiet",
+                                    authorInitial = "C",
+                                    timestamp = now - oneDay,
+                                    content = "Can relate. I thought adding 3 extra modes would help my music app. Users just wanted a clean player."
+                                ),
+                                Comment(
+                                    id = "1-1-2",
+                                    authorName = "InfiniteCoffee",
+                                    authorInitial = "I",
+                                    timestamp = now - oneDay,
+                                    content = "A minimal core product > overloaded app."
+                                ),
+                                Comment(
+                                    id = "1-1-3",
+                                    authorName = "APITestDummy",
+                                    authorInitial = "A",
+                                    timestamp = now - oneDay,
+                                    content = "I added offline support, 5 themes, and full emoji search. No one cared. Just wanted smooth onboarding."
+                                ),
+                                Comment(
+                                    id = "1-1-4",
+                                    authorName = "RetroUXFlare",
+                                    authorInitial = "R",
+                                    timestamp = now - oneDay,
+                                    content = "Too many features = too many bugs = bad reviews. Learned that the hard way."
+                                )
+                            )
                     ),
                     Comment(
                         id = "1-2",
@@ -50,7 +80,23 @@ I had people open the app, stare blankly, and close it.
                         authorName = "CLIOverlord",
                         authorInitial = "C",
                         timestamp = now - oneDay,
-                        content = "My failed app taught me more than my CS degree. There's no syllabus for building something strangers actually want."
+                            content = "My failed app taught me more than my CS degree. There's no syllabus for building something strangers actually want.",
+                            replies = listOf(
+                                Comment(
+                                    id = "1-3-1",
+                                    authorName = "DebugDruid",
+                                    authorInitial = "D",
+                                    timestamp = now - oneDay,
+                                    content = "Truth. The gap between \u201cthis is useful to me\u201d and \u201cthis is useful to others\u201d is massive."
+                                ),
+                                Comment(
+                                    id = "1-3-2",
+                                    authorName = "SilentLambda",
+                                    authorInitial = "S",
+                                    timestamp = now - oneDay,
+                                    content = "You don't learn product-market fit in school. You learn it after shipping something no one wants"
+                                )
+                            )
                     )
                 )
             )
