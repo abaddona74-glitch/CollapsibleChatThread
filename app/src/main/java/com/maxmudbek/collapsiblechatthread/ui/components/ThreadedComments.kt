@@ -96,7 +96,10 @@ fun CommentItem(
                 val endY = (actionsTopPx.value ?: size.height) + 3.dp.toPx()
 
                 // Rail for replies (this comment as a child) — continuous from top
-                if (depth > 0) {
+                // Only draw the child rail when this comment itself has replies.
+                // This removes the vertical line for leaf comments at the bottom
+                // of the thread, per design request.
+                if (depth > 0 && hasReplies) {
                     drawLine(
                         color = ConnectorLine,
                         start = Offset(railX, 0f),
