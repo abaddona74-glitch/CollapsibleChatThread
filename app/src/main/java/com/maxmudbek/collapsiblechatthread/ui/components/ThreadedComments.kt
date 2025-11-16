@@ -13,6 +13,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
@@ -148,20 +150,26 @@ fun CommentItem(
 
             // Part 2: split area (left narrow rail + right text column) — render when we have both title and content
             if (depth == 0 && comment.title != null && comment.content.isNotEmpty()) {
-                Row(modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 8.dp), verticalAlignment = Alignment.Top) {
+                // Remember headline top Y in parent coordinates (px) so the rail can start aligned
+                val headlineTopPx = remember { mutableStateOf<Float?>(null) }
+                // Keep no extra top padding here so the overall comment vertical padding stays
+                // at the outer block's 33.dp as specified.
+                Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
                     // Left narrow column: 28dp wide with centered vertical rail (30% white)
                     Box(
                         modifier = Modifier
                             .width(28.dp)
-                            .fillMaxHeight()
+                            .wrapContentHeight(Alignment.Top)
                             .drawBehind {
                                 val cx = size.width / 2f
+                                // Start the rail at the headline top if available, otherwise fall back
+                                // to a safe header height to avoid overlapping the avatar.
+                                val startY = headlineTopPx.value ?: headerHeight.toPx()
+                                val endY = size.height
                                 drawLine(
                                     color = Color(0x4DFFFFFF),
-                                    start = Offset(cx, 0f),
-                                    end = Offset(cx, size.height),
+                                    start = Offset(cx, startY.coerceAtLeast(0f)),
+                                    end = Offset(cx, endY),
                                     strokeWidth = 1.dp.toPx()
                                 )
                             }
@@ -173,6 +181,10 @@ fun CommentItem(
                     Column(modifier = Modifier.fillMaxWidth()) {
                         Text(
                             text = comment.title ?: "",
+                            modifier = Modifier.onGloballyPositioned { coords ->
+                                // positionInParent() gives px offset relative to the Row parent.
+                                headlineTopPx.value = coords.positionInParent().y
+                            },
                             style = TextStyle(fontWeight = FontWeight.Medium, fontSize = 20.sp, lineHeight = 26.sp),
                             maxLines = 3,
                             overflow = TextOverflow.Ellipsis
@@ -213,53 +225,82 @@ fun CommentItem(
             // Separator for clearer hierarchy
             Divider(color = ConnectorLine, thickness = 1.dp, modifier = Modifier.padding(vertical = 8.dp))
 
-            // Actions row — position the toggle icon so it aligns with the avatar/rail center
+            // Actions row (Part-3): fixed height 40dp. Left L-shaped connector aligned with avatar.
             val bg = MaterialTheme.colorScheme.background
             val iconTint = if (bg.luminance() < 0.5f) Color.White else Color.Black
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 8.dp)
+                    .height(40.dp)
                     .animateContentSize(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
+                // Left area: reserve avatar width so connector aligns with avatar center
+                Box(
+                    modifier = Modifier
+                        .width(28.dp)
+                        .fillMaxHeight()
+                        .drawBehind {
+                            val cx = size.width / 2f
+                            val verticalLen = 20.dp.toPx()
+                            val horizontalLen = 14.dp.toPx()
+                            // Draw vertical segment (from top of actions box down verticalLen)
+                            drawLine(
+                                color = Color(0x4DFFFFFF),
+                                start = Offset(cx, 0f),
+                                end = Offset(cx, verticalLen),
+                                strokeWidth = 1.dp.toPx()
+                            )
+                            // Draw horizontal segment (to the right) at y = verticalLen
+                            drawLine(
+                                color = Color(0x4DFFFFFF),
+                                start = Offset(cx, verticalLen),
+                                end = Offset(cx + horizontalLen, verticalLen),
+                                strokeWidth = 1.dp.toPx()
+                            )
+                        }
+                )
+
+                Spacer(modifier = Modifier.width(8.dp))
+
+                // Toggle group: icon + text, 8dp spacing between icon and text
                 if (hasReplies) {
                     val label = if (expanded) "Hide replies" else {
                         val c = comment.getTotalReplyCount()
                         if (c == 1) "Show 1 reply" else "Show $c replies"
                     }
-                    // Calculate offset so the toggle icon is centered on the avatar/rail.
-                    // Avatar and icon sizes are in Dp so we can compute the offset in Dp directly.
-                    val iconSize = 16.dp
-                    val toggleOffset = (avatarSize - iconSize) / 2f
 
-                    Box(modifier = Modifier.offset(x = toggleOffset)) {
-                        Row(
-                            modifier = Modifier.clickable { expanded = !expanded },
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Icon(
-                                painter = painterResource(id = if (expanded) R.drawable.icon_minus_circle else R.drawable.icon_plus_circle),
-                                contentDescription = label,
-                                tint = Color.White,
-                                modifier = Modifier.size(16.dp)
-                            )
-                            if (!expanded) {
-                                Spacer(Modifier.width(6.dp))
-                                Text(text = label, color = Color.White)
-                            }
-                        }
+                    Row(
+                        modifier = Modifier
+                            .clickable { expanded = !expanded }
+                            .wrapContentHeight(Alignment.CenterVertically),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            painter = painterResource(id = if (expanded) R.drawable.icon_minus_circle else R.drawable.icon_plus_circle),
+                            contentDescription = label,
+                            tint = Color.White,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(Modifier.width(8.dp))
+                        Text(text = label, color = Color.White)
                     }
-                    Spacer(Modifier.width(24.dp))
+
+                    Spacer(modifier = Modifier.width(8.dp))
                 }
-                Icon(
-                    painter = painterResource(id = R.drawable.icon_reply),
-                    contentDescription = "Reply",
-                    tint = Color.White,
-                    modifier = Modifier.size(16.dp)
-                )
-                Spacer(Modifier.width(8.dp))
-                Text(text = "Reply", color = Color.White)
+
+                // Reply group: icon + text with 8dp spacing
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.icon_reply),
+                        contentDescription = "Reply",
+                        tint = Color.White,
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Spacer(Modifier.width(8.dp))
+                    Text(text = "Reply", color = Color.White)
+                }
             }
 
             // Children (conditional composition, no reserved space when collapsed)
