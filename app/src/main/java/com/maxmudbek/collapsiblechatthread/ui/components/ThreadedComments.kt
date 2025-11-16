@@ -125,14 +125,14 @@ fun CommentItem(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(48.dp),
+                    .wrapContentHeight(Alignment.Top),
                 verticalAlignment = Alignment.Top
             ) {
                 ProfileIcon(initial = comment.authorInitial, modifier = Modifier.size(avatarSize))
                 Spacer(Modifier.width(12.dp))
 
                 
-                Column(modifier = Modifier.height(40.dp).fillMaxWidth()) {
+                Column(modifier = Modifier.fillMaxWidth()) {
                     
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
