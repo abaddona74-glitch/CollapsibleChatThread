@@ -162,16 +162,29 @@ fun CommentItem(
                     
                     if (comment.tags.isNotEmpty()) {
                         comment.tags.forEach { tag ->
-                            
-                            val isTop = tag.equals("Top 1% Commenter", ignoreCase = true)
                             Spacer(Modifier.height(4.dp))
+                            val isTopCommenter = tag.equals("Top 1% Commenter", ignoreCase = true)
+                            val isTopPoster = tag.equals("Top 1% Poster", ignoreCase = true)
+
+                            val tagTextColor = when {
+                                isTopPoster -> Color(0xFF68C3FF)
+                                isTopCommenter -> Color(0xFFFFC368)
+                                else -> OnSurfaceVar
+                            }
+
+                            val tagBgColor = when {
+                                isTopPoster -> Color(0x1F68C3FF)
+                                isTopCommenter -> Color(0x1FFFC368)
+                                else -> Surface50
+                            }
+
                             Box(modifier = Modifier.padding(top = 2.dp)) {
                                 Text(
                                     text = tag,
-                                    color = if (isTop) Color(0xFFFFC368) else OnSurfaceVar,
+                                    color = tagTextColor,
                                     modifier = Modifier
                                         .background(
-                                            if (isTop) Color(0x1FFFC368) else Surface50,
+                                            tagBgColor,
                                             androidx.compose.foundation.shape.RoundedCornerShape(6.dp)
                                         )
                                         .padding(vertical = 3.dp, horizontal = 6.dp),
