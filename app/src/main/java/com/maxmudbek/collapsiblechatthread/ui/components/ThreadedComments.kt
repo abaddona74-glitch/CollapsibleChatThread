@@ -43,7 +43,6 @@ import androidx.compose.ui.semantics.Role
 fun CommentThread(
     comments: List<Comment>,
     modifier: Modifier = Modifier,
-    
     contentPadding: PaddingValues = PaddingValues(horizontal = 0.dp, vertical = 8.dp)
 ) {
     LazyColumn(
@@ -69,10 +68,9 @@ fun CommentItem(
     val indent = (depth * 12).dp
     val hasReplies = comment.replies.isNotEmpty()
     var expanded by rememberSaveable(comment.id) { mutableStateOf(false) }
-    
+
     val actionsTopPx = remember { mutableStateOf<Float?>(null) }
 
-    
     Box(
         modifier = modifier
             .fillMaxWidth()
@@ -103,8 +101,6 @@ fun CommentItem(
                 }
 
                 // Draw connector segment from avatar center down to the actions area when replies exist.
-                // Also draw small horizontal ticks beside avatars for nested items so the timeline
-                // shows short arms next to each avatar.
                 if (hasReplies) {
                     val endY = (actionsTopPx.value ?: bottomY) + 3.dp.toPx()
                     drawLine(
@@ -136,8 +132,7 @@ fun CommentItem(
             }
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
-            
-            
+
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -147,9 +142,7 @@ fun CommentItem(
                 ProfileIcon(initial = comment.authorInitial, modifier = Modifier.size(avatarSize))
                 Spacer(Modifier.width(12.dp))
 
-                
                 Column(modifier = Modifier.fillMaxWidth()) {
-                    
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
                             text = comment.authorName,
@@ -157,9 +150,7 @@ fun CommentItem(
                             overflow = TextOverflow.Ellipsis,
                             style = TextStyle(fontWeight = FontWeight.SemiBold, fontSize = 15.sp, lineHeight = 20.sp)
                         )
-                        
-                        
-                        
+
                         Spacer(Modifier.width(6.dp))
                         Box(
                             modifier = Modifier
@@ -175,7 +166,6 @@ fun CommentItem(
                         )
                     }
 
-                    
                     if (comment.tags.isNotEmpty()) {
                         comment.tags.forEach { tag ->
                             Spacer(Modifier.height(4.dp))
@@ -210,7 +200,6 @@ fun CommentItem(
                         }
                     }
 
-                    
                     if (depth == 0) {
                         comment.channel?.let { ch ->
                             Text(
@@ -227,23 +216,16 @@ fun CommentItem(
                 }
             }
 
-            
-            
             if (comment.title != null && comment.content.isNotEmpty()) {
-                
                 val headlineTopPx = remember { mutableStateOf<Float?>(null) }
-                
-                
+
                 Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
-                    
                     Box(
                         modifier = Modifier
                             .width(28.dp)
                             .wrapContentHeight(Alignment.Top)
                             .drawBehind {
                                 val cx = size.width / 2f
-                                
-                                
                                 val startY = headlineTopPx.value ?: headerHeight.toPx()
                                 val endY = size.height
                                 drawLine(
@@ -257,12 +239,10 @@ fun CommentItem(
 
                     Spacer(modifier = Modifier.width(8.dp))
 
-                    
                     Column(modifier = Modifier.fillMaxWidth()) {
                         Text(
                             text = comment.title ?: "",
                             modifier = Modifier.onGloballyPositioned { coords ->
-                                
                                 headlineTopPx.value = coords.positionInParent().y
                             },
                             style = TextStyle(fontWeight = FontWeight.Medium, fontSize = 20.sp, lineHeight = 26.sp),
@@ -280,12 +260,8 @@ fun CommentItem(
                     }
                 }
             } else {
-                
-                
-                
                 if (depth > 0) {
                     Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
-                        
                         Box(modifier = Modifier.width(28.dp))
                         Spacer(modifier = Modifier.width(8.dp))
 
@@ -298,7 +274,6 @@ fun CommentItem(
                                 )
                             }
 
-                            
                             Text(
                                 text = comment.content,
                                 color = OnSurfaceVar,
@@ -308,7 +283,6 @@ fun CommentItem(
                         }
                     }
                 } else {
-                    
                     comment.title?.let { t ->
                         Text(
                             text = t,
@@ -317,7 +291,6 @@ fun CommentItem(
                         )
                     }
 
-                    
                     Text(
                         text = comment.content,
                         color = OnSurfaceVar,
@@ -327,10 +300,6 @@ fun CommentItem(
                 }
             }
 
-            
-            
-
-            
             val bg = MaterialTheme.colorScheme.background
             val iconTint = if (bg.luminance() < 0.5f) Color.White else Color.Black
             Row(
@@ -340,14 +309,12 @@ fun CommentItem(
                     .height(40.dp)
                     .animateContentSize()
                     .onGloballyPositioned { coords ->
-                        
                         actionsTopPx.value = coords.positionInParent().y
                     },
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                
-                
-                val verticalLenDp = 20.dp
+                val topPaddingDp = 20.dp
+                val verticalLenDp = topPaddingDp
                 val horizontalLenDp = 14.dp
                 Box(
                     modifier = Modifier
@@ -357,13 +324,6 @@ fun CommentItem(
                             val cx = size.width / 2f
                             val verticalLen = verticalLenDp.toPx()
                             val horizontalLen = horizontalLenDp.toPx()
-                            
-                            
-                            
-                            
-                            
-                            
-                            
                             val maskHalf = 1.dp.toPx()
                             drawRect(
                                 color = bg,
@@ -372,14 +332,7 @@ fun CommentItem(
                             )
 
                             if (hasReplies && !expanded) {
-                                
-                                drawLine(
-                                    color = SurfaceAlt30,
-                                    start = Offset(cx, 0f),
-                                    end = Offset(cx, verticalLen),
-                                    strokeWidth = 1.dp.toPx()
-                                )
-
+                                // Draw only a short horizontal arm at `topPaddingDp` inside the actions column.
                                 drawLine(
                                     color = SurfaceAlt30,
                                     start = Offset(cx, verticalLen),
@@ -404,15 +357,12 @@ fun CommentItem(
 
                 Spacer(modifier = Modifier.width(8.dp))
 
-                
-                
                 if (hasReplies) {
                     val label = run {
                         val c = comment.getDirectReplyCount()
                         if (c == 1) "Show 1 reply" else "Show $c replies"
                     }
 
-                    
                     Row(
                         modifier = Modifier
                             .clickable { expanded = !expanded }
@@ -434,7 +384,6 @@ fun CommentItem(
                     Spacer(modifier = Modifier.width(8.dp))
                 }
 
-                
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
                         painter = painterResource(id = R.drawable.icon_reply),
@@ -447,7 +396,6 @@ fun CommentItem(
                 }
             }
 
-            
             if (expanded && hasReplies) {
                 Column(modifier = Modifier.animateContentSize()) {
                     comment.replies.forEach { child ->
@@ -463,3 +411,4 @@ fun CommentItem(
 fun ThreadLine(depth: Int, isLast: Boolean) {
     
 }
+
