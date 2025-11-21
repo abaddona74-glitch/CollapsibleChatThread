@@ -55,3 +55,7 @@ val ProfileColors = listOf(
     Color(0xFFEF4444), 
     Color(0xFF3B82F6), 
 )
+
+// Color tokens
+val BrandOnPrimary = Color(0xFFFFFFFF)
+val SchemeBackground = Color(0xFFFEFAF6)

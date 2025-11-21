@@ -35,7 +35,9 @@ import com.maxmudbek.collapsiblechatthread.model.Comment
 import com.maxmudbek.collapsiblechatthread.ui.theme.ConnectorLine
 import com.maxmudbek.collapsiblechatthread.ui.theme.OnSurfaceVar
 import com.maxmudbek.collapsiblechatthread.ui.theme.Surface50
+import com.maxmudbek.collapsiblechatthread.ui.theme.SurfaceAlt30
 import com.maxmudbek.collapsiblechatthread.utils.TimeUtils
+import androidx.compose.ui.semantics.Role
 
 @Composable
 fun CommentThread(
@@ -74,46 +76,60 @@ fun CommentItem(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            
-            
+            .clickable(
+                enabled = comment.replies.isNotEmpty(),
+                role = Role.Button,
+                onClick = { expanded = !expanded }
+            )
             .padding(
                 start = indent + 20.dp,
                 end = 20.dp,
                 top = if (depth == 0 && isFirst) 33.dp else 0.dp,
-                
-                
-                
                 bottom = 0.dp
             )
             .drawBehind {
                 val railX = avatarSize.toPx() / 2f
-                
-                
-                
-                
-                
-                
-                val endY = (actionsTopPx.value ?: size.height) + 3.dp.toPx()
+                val avatarCenterY = avatarSize.toPx() / 2f
+                val bottomY = size.height
 
-                
-                
-                
-                
-                if (depth > 0 && hasReplies) {
+                // Draw a continuous vertical rail for nested threads or when replies exist.
+                if (depth > 0 || hasReplies) {
                     drawLine(
                         color = ConnectorLine,
                         start = Offset(railX, 0f),
-                        end = Offset(railX, endY),
+                        end = Offset(railX, bottomY),
                         strokeWidth = 1.dp.toPx()
                     )
                 }
-                
+
+                // Draw connector segment from avatar center down to the actions area when replies exist.
+                // Also draw small horizontal ticks beside avatars for nested items so the timeline
+                // shows short arms next to each avatar.
                 if (hasReplies) {
-                    val startY = avatarSize.toPx() / 2f 
+                    val endY = (actionsTopPx.value ?: bottomY) + 3.dp.toPx()
                     drawLine(
                         color = ConnectorLine,
-                        start = Offset(railX, startY),
-                        end = Offset(railX, endY),
+                        start = Offset(railX, avatarCenterY),
+                        end = Offset(railX, endY.coerceAtMost(bottomY)),
+                        strokeWidth = 1.dp.toPx()
+                    )
+                }
+
+                // Draw horizontal ticks for both replies and nested replies (depth > 0)
+                if (hasReplies || depth > 0) {
+                    val armLen = 6.dp.toPx()
+                    // left short tick (inside rail area)
+                    drawLine(
+                        color = ConnectorLine,
+                        start = Offset(railX - armLen, avatarCenterY),
+                        end = Offset(railX, avatarCenterY),
+                        strokeWidth = 1.dp.toPx()
+                    )
+                    // right short arm pointing toward the avatar/content area
+                    drawLine(
+                        color = ConnectorLine,
+                        start = Offset(railX, avatarCenterY),
+                        end = Offset(railX + armLen, avatarCenterY),
                         strokeWidth = 1.dp.toPx()
                     )
                 }
@@ -231,7 +247,7 @@ fun CommentItem(
                                 val startY = headlineTopPx.value ?: headerHeight.toPx()
                                 val endY = size.height
                                 drawLine(
-                                    color = Color(0x4DFFFFFF),
+                                    color = SurfaceAlt30,
                                     start = Offset(cx, startY.coerceAtLeast(0f)),
                                     end = Offset(cx, endY),
                                     strokeWidth = 1.dp.toPx()
@@ -358,14 +374,14 @@ fun CommentItem(
                             if (hasReplies && !expanded) {
                                 
                                 drawLine(
-                                    color = Color(0x4DFFFFFF),
+                                    color = SurfaceAlt30,
                                     start = Offset(cx, 0f),
                                     end = Offset(cx, verticalLen),
                                     strokeWidth = 1.dp.toPx()
                                 )
-                                
+
                                 drawLine(
-                                    color = Color(0x4DFFFFFF),
+                                    color = SurfaceAlt30,
                                     start = Offset(cx, verticalLen),
                                     end = Offset(cx + horizontalLen, verticalLen),
                                     strokeWidth = 1.dp.toPx()

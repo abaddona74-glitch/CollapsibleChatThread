@@ -52,7 +52,7 @@ Here's what I learned about feature creep, marketing missteps, and chasing perfe
                                     authorName = "APITestDummy",
                                     authorInitial = "A",
                                     timestamp = now - oneDay,
-                                    content = "I added offline support, 5 themes, and full emoji search. No one cared. Just wanted smooth onboarding."
+                                    content = "Added offline support, 5 themes, and full emoji search. Users preferred smooth onboarding."
                                 ),
                                 Comment(
                                     id = "1-1-4",
