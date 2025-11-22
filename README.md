@@ -24,7 +24,4 @@ app/src/main
 
 
 **Recordings**
-<video controls width="480">
-  <source src="https://raw.githubusercontent.com/abaddona74-glitch/CollapsibleChatThread/main/record/demo.mp4" type="video/mp4">
-  Your browser does not support the video tag.
-</video>
+[Play demo recording (40s)](record/demo.mp4)
