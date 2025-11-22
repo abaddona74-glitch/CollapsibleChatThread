@@ -24,4 +24,6 @@ app/src/main
 
 
 **Recordings**
-[Play demo recording (40s)](record/demo.mp4)
+<video width="320" height="240" controls>
+  <source src="record/demo.mp4" type="video/mp4">
+</video>
