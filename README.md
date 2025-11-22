@@ -21,3 +21,11 @@ app/src/main
   - mipmap-*/
   - values/
   - xml/
+
+
+**Recordings**
+
+The `record/` folder has been created in the repository for submission videos and short screen recordings.
+
+- Please add a screen recording (up to 40 seconds) showing the required interactions to the `record/` folder or attach it directly to the issue.
+- Preferred formats: MP4 (H.264), keep file size reasonable (<50 MB if possible).
