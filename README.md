@@ -24,5 +24,5 @@ app/src/main
 
 
 **Recordings**
+https://github.com/user-attachments/assets/6ef4fcb5-aee8-4516-bad1-11b217942f78
 
-[Play demo recording (40s)](record/demo.mp4)
